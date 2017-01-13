@@ -58,7 +58,7 @@ You can also write them in hexadecimal or octal notation:
 
 ```
 __int128 hector = 0xfeed'bad'beef'2'dad_128;
-__int128 imelda = 0644;
+__int128 imelda = 0644_128;
 ```
 
 You can even write 128-bit binary literals:
