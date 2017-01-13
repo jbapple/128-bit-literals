@@ -1,63 +1,68 @@
-# 128-bit literals in C++14 #
+# 128-bit literals in C++11 and C++14 #
 
-[g++](http://web.archive.org/web/20170109003102/https://gcc.gnu.org/onlinedocs/gcc/_005f_005fint128.html)
-and clang++ support the 128-bit integer types `__int128` and `unsigned
-__int128`, but they do not support [integer
-literals](http://en.cppreference.com/w/cpp/language/integer_literal)
-(`77`, `0644`, `99uLL`, `0b00001101`, `0xa'bad'1dea`) that are 128
-bits long on x86-64:
+In C++, you can store 8-bit integers, 16-bit integers, 32-bit integers, and 64-bit integers:
 
 ```
-$ clang++ -c -std=c++14 fail.cpp || echo "sad trombone."
-fail.cpp:1:23: error: integer literal is too large to be represented in any integer type
-unsigned __int128 x = 0xf0123456789abcdef;
-                      ^
-1 error generated.
-sad trombone.
+int8_t alice;
+int64_t bob;
 ```
 
-suffix128.hpp makes this work, as long as you append a particular
-suffix, just like the standard C++ suffixes `u`, `Ul`, `uLL`, and so
-on:
+GCC and Clang even have 128-bit integers:
 
 ```
-$ diff -u fail.cpp succeed.cpp
---- fail.cpp    2017-01-08 16:37:51.129264501 -0800
-+++ succeed.cpp 2017-01-08 16:42:02.717264478 -0800
-@@ -1 +1,2 @@
--unsigned __int128 x = 0xf0123456789abcdef;
-+#include "suffix128.hpp"
-+unsigned __int128 x = 0xf0123456789abcdef_u128;
-```
-```
-$ clang++ -c -std=c++14 succeed.cpp && echo "Wheee!"
-Wheee!
+__int128 carol;
 ```
 
-Only one header needs to be included: suffix128.hpp.
-
-suffix128.hpp works with constexpr, non-type template parameters,
-enumerator initializers, C++14's single-quote digit separator, and
-signed numbers:
+You can ***store*** 128-bit integers, but [you aren't allowed to ***write*** 128-bit integers](http://web.archive.org/web/20170109003102/https://gcc.gnu.org/onlinedocs/gcc/_005f_005fint128.html):
 
 ```
-constexpr __int128 x = -0x0123456789abcdef'0'12'345'6789'abcde'f_128;
-```
-```
-template<__int128> struct Foo {};
-Foo<0x0123456789abcdef'0123456789abcdef_128> bar;
-```
-```
-enum Bar { BAZ = 0x0123456789abcdef'0123456789abcdef_128 };
+__int128 dave = 18446744073709551616;
 ```
 
-Just like for 64-bit numbers, the minimum value cannot be written as a
-128-bit literal. However, the minimu 64-bit signed value can now be
-written as a 128-bit literal and it will be converted properly,
-according to 4.7, Integral conversions: "If the destination type is
-signed, the value is unchanged if it can be represented in the
-destination type".
+```
+error: integer literal is too large to be represented in any integer type
+__int128 dave = 18446744073709551616;
+                ^
+```
+
+This library allows you to write 128-bit integers:
 
 ```
-static_assert(-0x8000'0000'0000'0000_128 == LLONG_MIN, "Literal min");
+#include "suffix128.hpp"
+__int128 emily = 18446744073709551616_128;
+```
+
+All you have to do is `#include "suffix128.hpp"` and end your integer with the suffix `_128`.
+
+--------------
+
+You can use the suffix `_u128` for unsigned integers:
+
+```
+unsigned __int128 frank = 123456789012345678901234567890_u128;
+```
+
+128-bit integers you write this way are constants and they can be used as template parameters or enumerator initializers.
+
+```
+enum Bar { BAZ = 0_128 };
+```
+
+You can use C++14's single-quote digit separator:
+
+```
+__int128 gloria = 1'2'3'456'7_128;
+```
+
+You can also write them in hexadecimal or octal notation:
+
+```
+__int128 hector = 0xfeed'bad'beef'2'dad_128;
+__int128 imelda = 0644;
+```
+
+You can even write 128-bit binary literals:
+
+```
+unsigned __int128 jules = 0b00000001000001100001010000111000100100010110001101000111100100110010101001011100110110011101001111101010110101111011011101111111_u128;
 ```
