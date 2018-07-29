@@ -20,8 +20,8 @@ function Expect() {
     if [[ "${STANDARD}" -lt 14 ]]; then
         DIGITS="$(echo ${DIGITS} | tr -d "'")"
     fi
-    ${CXX} -c -std=c++${STANDARD} -Werror -W -Wall -Wextra -DTYPE="${TYPE}" \
-           -DDIGITS=${DIGITS} -DSUFFIX=${SUFFIX} test.cpp &>"${OUTPUT}"
+    ${CXX} -c -std=c++${STANDARD} -Werror -W -Wall -Wextra -Wno-unused-const-variable \
+           -DTYPE="${TYPE}" -DDIGITS=${DIGITS} -DSUFFIX=${SUFFIX} test.cpp &>"${OUTPUT}"
     ACTUAL=$?
     if AsExpected ${EXPECTED} ${ACTUAL}; then
         printf "TESTING%20s: %s\n" "${NAME}" OK

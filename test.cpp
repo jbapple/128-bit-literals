@@ -11,6 +11,8 @@ struct Wrapper {
 };
 
 template struct Wrapper<TYPE, decltype(WITH_SUFFIX(DIGITS, SUFFIX))>;
+constexpr decltype(WITH_SUFFIX(DIGITS, SUFFIX)) value =
+    WITH_SUFFIX(DIGITS, SUFFIX);
 // static_assert(std::is_same<TYPE, decltype(WITH_SUFFIX(DIGITS, SUFFIX))>::value,
 //               Wrapper<TYPE, decltype(WITH_SUFFIX(DIGITS, SUFFIX))>::message);
 // TODO: static_assert for equality
