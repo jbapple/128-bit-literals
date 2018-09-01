@@ -2,22 +2,18 @@
 
 namespace suffix128 {
 
+// Returns the value of the hexadecimal character
 constexpr unsigned __int128 CharValue(char c) {
   return (c >= '0' && c <= '9')
              ? (c - '0')
              : ((c >= 'a' && c <= 'f') ? (10 + (c - 'a')) : (10 + (c - 'A')));
 }
 
-template <int BASE>
-constexpr bool ValidateChar(char c) {
-  return (BASE <= 10)
-             ? (c >= '0' && c <= ('0' + (BASE - 1)))
-             : (((c >= '0') && (c <= '9')) || ((c >= 'a') && (c <= 'f')) ||
-                ((c >= 'A') && (c <= 'F')));
-}
-
 static constexpr unsigned __int128 MAX128 = ~static_cast<unsigned __int128>(0);
 
+// ValidateU128Helper<BASE, c1, c2, ... , cn>(v) returns true iff cn + ... + c2
+// * BASE^(n-2) + c1 * BASE^(n-1) + v * BASE^n is a valid 128-bit unsigned
+// number when interpreted in base BASE.
 template <int BASE>
 constexpr bool ValidateU128Helper(unsigned __int128) {
   return true;
@@ -32,11 +28,16 @@ constexpr bool ValidateU128Helper(unsigned __int128 accumulate) {
                                                         CharValue(C)));
 }
 
+// ValidateU128<BASE, c1, c2, ... , cn>(v) returns true iff cn + ... + c2 *
+// BASE^(n-2) + c1 * BASE^(n-1) is a valid 128-bit unsigned number when
+// interpreted in base BASE.
 template <int BASE, char... CS>
 constexpr bool ValidateU128() {
   return ValidateU128Helper<BASE, CS...>(0);
 }
 
+// MakeU128Helper<BASE, c1, c2, ... , cn>(v) returns cn + ... + c2 *
+// BASE^(n-2) + c1 * BASE^(n-1) + result * BASE^n.
 template <int BASE>
 constexpr unsigned __int128 MakeU128Helper(unsigned __int128 result) {
   return result;
@@ -48,6 +49,8 @@ constexpr unsigned __int128 MakeU128Helper(unsigned __int128 result) {
       (C == '\'') ? result : (result * BASE + CharValue(C)));
 }
 
+// MakeU128<BASE, c1, c2, ... , cn>(v) returns cn + ... + c2 * BASE^(n-2) + c1 *
+// BASE^(n-1).
 template <int BASE, char... CS>
 constexpr unsigned __int128 MakeU128() {
   return MakeU128Helper<BASE, CS...>(0);
