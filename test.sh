@@ -4,6 +4,8 @@
 
 # TODO: distinguish errors from warnings?
 
+set -o pipefail
+
 function AsExpected() {
     [[ ($1 == "PASS" && $2 == 0) || ($1 == "FAIL" && $2 != 0) ]]
 }
@@ -20,16 +22,19 @@ function Expect() {
     if [[ "${STANDARD}" -lt 14 ]]; then
         DIGITS="$(echo ${DIGITS} | tr -d "'")"
     fi
+    set +e
     ${CXX} -c -std=c++${STANDARD} -Werror -W -Wall -Wextra -Wno-unused-const-variable \
            -DTYPE="${TYPE}" -DDIGITS=${DIGITS} -DSUFFIX=${SUFFIX} test.cpp &>"${OUTPUT}"
     ACTUAL=$?
     if AsExpected ${EXPECTED} ${ACTUAL}; then
         printf "TESTING%20s: %s\n" "${NAME}" OK
         rm "${OUTPUT}"
+        set -e
     else
         IO="$(cat ${OUTPUT})"
         rm "${OUTPUT}"
         printf "TESTING%16s: %s\n%s\n" "${NAME}" NOTOK "${IO}"
+        set -e
         return 1
     fi
 }
@@ -48,6 +53,7 @@ for CXX in "$@"; do
     for STANDARD in 11 14; do
         echo "${CXX} ${STANDARD}"
         if SmokeTestCompiler "${CXX}" ${STANDARD}; then
+            set -e
             Expect uHex PASS "${CXX}" "${STANDARD}" "unsigned __int128" 0x12 u128
             Expect uDecimal PASS "${CXX}" "${STANDARD}" "unsigned __int128" 12 u128
             Expect Hex PASS "${CXX}" "${STANDARD}" __int128 0x12 128
@@ -129,6 +135,7 @@ for CXX in "$@"; do
                    "0080" u128
             Expect InvalidBin2 FAIL "${CXX}" "${STANDARD}" "unsigned __int128" \
                    "0b2" u128
+            set +e
         fi
     done
 done
