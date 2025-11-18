@@ -146,14 +146,14 @@ struct Static128<'0', CS...> {
 }  // namespace suffix128
 
 template <char... CS>
-constexpr unsigned __int128 operator"" _u128() {
+constexpr unsigned __int128 operator""_u128() {
   static_assert(suffix128::StaticU128<CS...>::IS_VALID,
                 "Invalid characters or number too large");
   return suffix128::StaticU128<CS...>::PAYLOAD;
 }
 
 template <char... CS>
-constexpr __int128 operator"" _128() {
+constexpr __int128 operator""_128() {
   static_assert(suffix128::Static128<CS...>::IS_VALID,
                 "Invalid characters or number too large");
   return suffix128::Static128<CS...>::PAYLOAD;
