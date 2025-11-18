@@ -50,7 +50,7 @@ function SmokeTestCompiler {
 }
 
 for CXX in "$@"; do
-    for STANDARD in 11 14; do
+    for STANDARD in 11 14 17 20 23; do
         echo "${CXX} ${STANDARD}"
         if SmokeTestCompiler "${CXX}" ${STANDARD}; then
             set -e
